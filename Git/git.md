@@ -60,6 +60,10 @@ Sous linux et mac, il est impossible de se connecter à un compte GitHub sans cl
 ***Attention :*** Il est possible que l'agent SSH ne démarre pas automatiquement au démarrage de votre session. Il faut donc le lancer manuellement à chaque fois que vous ouvrez une nouvelle session OU Trouver un moyen d'automatiser le lancement de l'agent SSH au démarrage de votre session... Mais je vais pas vous aider là-dessus : bon courage !
 
 __Etape 4 :__ Configurations de certains automatisme de git
+  *  *Definition de l'outil de merge*
+1. Installer un outil de merge : ici [Meld](https://meldmerge.org/)
+2. Configurer git pour utiliser l'outil de merge : `git config --global merge.tool meld`
+
 
 **TODO mais je n'ai pas encore exploré les options de git.**
 
@@ -287,14 +291,55 @@ Cette commande va supprimer la branche LOCALEMENT. La branche sera toujours pré
 
 Cette commande va supprimer la branche sur le dépôt distant. Il est donc impossible de la récupérer plus tard. Mais si vous ne la supprimez pas localement, elle sera toujours présente sur votre machine. Si vous souhaitez la reouvrir sur le répo distant, il faudra la push à nouveau comme une nouvelle branche.
 
-BIEN ! Vous savez faire les manipulations de base sur les branches. Cependant, l'utilisation de branches (et le travail en équipe de façon générale) induit souvent des conflits et nous allons vois comment les résoudres.
+Bien, maintenant, on va evoquer un cas de figure qu vous allez forcément rencontrer : l'ajout d'un commit sur la branche principale pendant que vous développez une nouvelle fonctionnalité sur une autre branche.
 
-<!-- * **Résoudre un conflit** 
+* **Mettre à jour une branche** `git rebase <nom_de_la_branche_source>`
 
-Un conflit se produit lorsque deux personnes modifient le même fichier en même temps et que les modifications ne peuvent pas être fusionnées automatiquement. Dans ce cas, git va marquer le fichier comme étant en conflit et il faudra le résoudre manuellement. Ca peut avoir lieu lors d'une pull, d'un merge ou d'un rebase. -->
+Le rebase est une opération un peu complexe mais très puissante. Pour vous montrer ses effets, je vais faire un schéma. Prenons le cas où vous avez deux branches : la branche principale (main) et une branche de développement (feature). La branche principale a un commit F et la branche de développement a un commit E. Votre répo ressemble à ça :
 
+```
+    A -- B -- C -- D -- F (main)
+                    \    
+                     \  
+                      E (feature)
+```
+
+Lorsque je me place dans la branche feature et que je fais un `git rebase main`, git va faire un "replay" de la branche feature sur la branche main. C'est à dire qu'il va prendre le commit E et le mettre sur la branche main, après le commit F. Votre répo ressemble alors à ça :
+
+```
+    A -- B -- C -- D -- F (main)
+                         \    
+                          \  
+                           E' (feature)
+```
+
+De cette façon, la branche feature est à jour par rapport à la branche main et vous pouvez continuer à développer votre fonctionnalité sans problème tout en integrant les dernières modifications de la branche principale.
+
+CEPENDANT, il faut faire attention à plusieurs choses :
+
+* Il faut d'abord faire un `git fetch --all` pour mettre à jour les informations du dépôt distant. Si vous ne le faites pas, vous risquez de récupérer des modifications qui ne sont pas à jour, ou simplement de ne pas récupérer les dernières modifications.
+* Aucune modification non indexée ne doit être présente dans le répertoire de travail avant de faire un `git rebase`.
+* Vous risquez d'avoir des conflits ! Et c'est là qu'on va pouvoir parler de gestions des clonflits.
+
+Nous allons donc voir comment gérer les conflits.
+
+* **Gérer les conflits** `git mergetool`
+  
+Lorsque vous effectuez un rebase (ou un merge, mais on verra ça plus tard), il est possible que vous ayez des conflits. Dans ce cas, git va vous le signaler l'opération sera en attente de résolution des conflits. Pour résoudre les conflits, il faut utiliser un outil de merge. 
+1. Tapez `git mergetool` pour ouvrir l'outil de merge que vous avez configuré dans git.
+2. Résolvez les conflits en utilisant l'outil de merge.
+3. `git add <nom_du_fichier>` pour ajouter les fichiers modifiés à l'index git.
+4. Ensuite faites un `git rebase --continue` pour continuer le rebase.
+5. Si vous avez plusieurs conflits, il faudra répéter les étapes 2 à 4 jusqu'à ce que tous les conflits soient résolus.
+
+Si finalement vous decidez de ne pas faire le rebase, tapez `git rebase --abort` pour annuler le rebase et revenir à l'état précédent.
+
+Bien, vous savez maintenant comment gérer les conflits et faire un rebase. C'est une opération un peu complexe mais très puissante. Il est donc important de bien comprendre comment ça fonctionne et de savoir s'en servir. Tout ça c'est bien beau, mais comment on met en commun ? C'est ce qu'on va voir maintenant.
 
 **<u>V. Les commandes de fusion</u>**
+
+
+
 
 **<u>VI. Les bonnes pratiques (OBLIGATOIRES)</u>**
 
