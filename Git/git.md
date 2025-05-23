@@ -158,7 +158,66 @@ Cependant, il y a encore beaucoup de choses à voir sur git, à commencer par...
 
 **<u>III. Les commandes correctives</u>**
 
-**<u>IV. Les commandes de gestion de branches</u>**
+On va donc voir comment corriger ses erreurs avec git, du plus simple et local au plus complexe et distant.
+La première chose à savoir faire est de savoir annuler les modifications apportées à un fichier. Il y a plusieurs façons de le faire, en fonction de l'état du fichier. **Mais attention, ces commandes *sont destructives* et ne peuvent *pas être annulées*. Il est donc important de bien réfléchir avant de les utiliser.**
+
+* **Annuler les modifications apportées à un fichier indexé** `git checkout -- <nom_du_fichier>`
+
+Cette commande va permettre d'annuler les modifications apportées à un fichier indexé. Elle va remettre le fichier dans l'état dans lequel il était lors du dernier commit. 
+
+* **Annuler les modifications apportées à un fichier non indexé** `git restore <nom_du_fichier>`
+
+Cette commande va permettre d'annuler les modifications apportées à un fichier non indexé. Elle va remettre le fichier dans l'état dans lequel il était lors du dernier commit.
+
+Bien, maintenant que vous savez annuler les modifications apportées à un fichier, on va voir comment desindexer un fichier. C'est à dire comment retirer un fichier de l'index git sans le supprimer du répertoire de travail.
+
+* **Desindexer un fichier** `git restore --staged <nom_du_fichier>`
+
+Cette commande va permettre de retirer un fichier de l'index git sans le supprimer du répertoire de travail. Elle va remettre le fichier dans l'état dans lequel il était au moment de l'indexation. Tips suplémentaire, si vous souhaitez desindexer et annuler les modifications apportées à un fichier, il est possible d'utiliser la commande `git reset HEAD <nom_du_fichier>`. 
+
+Ca me fait une super transition pour la commande suivante qui permet, elle, de remettre le répo dans létat d'un commit précédent.
+
+* **Remettre le répo dans l'état d'un commit précédent** `git reset --soft <hash_du_commit | HEAD~X >`
+
+J'appuie là dessus car il ne faut pas se tromper sur le rôle de cette commande : elle permet de revenir en arrière dans l'historique des commits mais ***NAFFECTE PAS*** l'historique des commits.  
+En gros, il faut voir le versionning comme une tete de lecture sur une bande (HEAD) et que chaque commit est un point sur cette bande. Lorsqu'on a recourt à la commande `git reset`, on deplace la tête de lecture sur un commit précédent.   
+Ce déplacement peut être destructif ou non destructif ET il peut affecter le répertoire de travail ou non. Une fois la tête de lecture déplacée, toutes les commandes git affectant le répo (`git commit` par exemple) auront lieu à partir de ce commit. Il est donc important de bien réfléchir avant de l'utiliser.
+
+Voyons la commande dans le détail :
+* `git reset` : Remet le répo dans l'état du commit spécifié
+* `--soft ` : Remet le répo dans l'état du commit spécifié et garde les modifications apportées depuis ce commit. C'est à dire que les fichiers modifiés seront toujours présents dans le répertoire de travail et indexés. C'est une commande non destructrice et il est possible de revenir en arrière. Cependant, on y a rarement recours.
+
+* `<hash_du_commit>` : Hash du commit sur lequel vous voulez revenir. Il est possible de le trouver en faisant un `git log` et en copiant le hash du commit souhaité
+* `HEAD~X` : Permet de revenir en arrière de X commits par rapport à la tête. Par exemple, `HEAD~2` permet de revenir en arrière de 2 commits par rapport à la tête. Il est possible d'utiliser `HEAD^` pour revenir au commit parent de la tête, mais c'est un peu plus compliqué à expliquer et très peu utilisé donc je ne vais pas m'étendre là-dessus.
+
+Maintenant que vous savez comment revenir en arrière dans l'historique des commits, on va voir comment renommer et supprimer ou revenir en arrière sur un commit. Commencons par le plus simple : renommer un commit.
+
+* **Renommer un commit** `git commit --amend -m "<nouveau_message_de_commit>"`
+
+Cette commande renomme le dernier commit... Mais attention, elle modifie l'historique de commit, alors cette opération n'est possible que ***si le commit n'a pas été poussé sur le dépôt distant***. Dans le cas contraire, nous verrons dans un instant comment le faire, mais il faut vraiment éviter d'en arriver là.
+
+* **revenir en arrière sur un commit** `git revert <hash_du_commit>`
+
+Cette commande créer un nouveau commit qui annule les modifications apportées par le commit spécifié. Donc aucun souci si le commit a été poussé sur le dépôt distant, car on ne modifie pas l'historique des commits, on l'étend. Ce n'est pas une commande qu'on utilise souvent, mais il est utile de la connaitre et son utilisation sera expliquée dans la section "Bonnes pratiques".
+
+* **Supprimer un commit** `git reset --hard <hash_du_commit | HEAD~X>`
+
+Cette commande ci est destructrice et affecte le répertoire de travail ainsi que l'historique des commits. Elle remet le répo dans l'état du commit spécifié et supprime tous les commits suivants. Il est donc impossible de revenir en arrière une fois la commande exécutée. Il faut donc vraiment réfléchir avant de l'utiliser. Une fois fait, les commits que vous ajouterez seront ajoutés à la suite. ATTENTION : Si vous avez déjà poussé le commit sur le dépôt distant, vous aurez un problème et vous ne pourrez plus push normalement, donc faites bien attention.
+
+C'est la que les dernières commandes interviennent. Elles auront beaucoup de conséquences pout vos collaborateurs, donc il faut vraiment informer les autres membres de l'équipe si ça doit arriver : on s'attaque à la correction d'erreur sur le répo distant.
+
+* **Modifier l'historique des commits poussé** `git push --force`
+
+C'est le dernier recours. Cette commande va permettre de forcer le nouvel historique des commits sur le dépôt distant en ecrasant l'historique des commits précédents. Faire ça est très risqué et il faut vraiment être sur de ce qu'on fait. 
+
+Maintenant, vous savez comment corriger la majorité des erreurs que vous pourrez rencontrer sur git. Avec ces outils, vous devriez plutôt bien vous en sortir et pouvez être confiant quant à votre capacité à interagir avec les projets. 
+
+
+Cependant, pour que nous puissions à plusieurs sur un projet, il faut savoir comment gérer les branches et les conflits. C'est un concept fondamental de git et très utile pour travailler en équipe. 
+
+
+
+**<u>IV. Les commandes de gestion de branches et des conflits</u>**
 
 **<u>V. Les commandes de fusion</u>**
 
