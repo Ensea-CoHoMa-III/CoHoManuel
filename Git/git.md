@@ -1,6 +1,6 @@
-# GIT
+# GIT & GITHUB
 
-<u>**I. Le setup de git**</u>
+**<u>I. Le setup de git</u>**
 
 Il est preferable d'être sous linux, ça rend tout plus simple : autant pour le dev que pour l'installation et l'utilisation de git. Quoi qu'il en soit, l'installation suit la même logique sur tous les OS.
 
@@ -65,12 +65,96 @@ __Etape 4 :__ Configurations de certains automatisme de git
 
 Et voilà, git est installé et configuré sur votre machine ! Vous pouvez maintenant l'utiliser pour le projet CoHoMa.
 
-
-
-
-
-
 **<u>II. Les commandes de base</u>**
+
+Git est un outil de gestion de version. Il permet de suivre les modifications apportées à un projet au fil du temps. Il est donc essentiel de bien comprendre comment l'utiliser pour éviter de perdre des données ou de faire des erreurs. Pour travailler sur un projet versionner il faut initialiser un dépôt git appelé repository (ou repo). 
+
+* **Initialiser un dépôt git**  
+`git init <nom_du_dépôt>`
+
+Vous permet de créer un nouveau dépôt git dans le répertoire courant. Une fois le dépôt créé, les commandes git pourront être utilisées.  
+
+Cependant, si vous voulez plutôt contribuer à un projet déjà existant, il faut cloner le dépôt.
+
+* **Cloner un dépôt git**  
+`git clone <url_du_dépôt> <nom du dossier de destination>`
+
+  * Pour trouver le lien de votre répo, rendez-vous sur la page de votre répo github et cliquez sur le bouton vert "Code". Vous aurez le choix entre deux protocoles : HTTPS et SSH.
+    * **Si vous êtes sous Windows**, utilisez le lien HTTPS. (mais passez sous linux quand même, c'est mieux)
+    * **Si vous êtes sous linux**, utilisez le lien SSH. Il sera peut-etre nécessaire d'entrer votre passphrase SSH.
+  * Si vous ne spécifiez pas de nom de dossier de destination, le dépôt sera cloné dans un dossier du même nom que le dépôt. Si vous le spécifiez, un dossier du nom que vous avez spécifié sera créé et le dépôt sera cloné à l'intérieur. 
+
+Maintenant qu'un dépôt git est créé ou cloné, on va voir les différentes actions possibles sur un dépot git.
+
+* **Indexer les fichiers**
+`git add <nom_du_fichier | des fichiers | .>`
+
+Cette commande va permettre d'ajouter un ou plusieurs fichiers à l'index git. L'index git est une sorte de zone tampon entre le répertoire de travail et le dépôt git. Il permet de préparer les fichiers avant de les valider dans le dépôt. 
+  
+  + Si vous voulez indexer **tous les fichiers** du répertoire courant, utilisez `git add .` (le point signifie "tous les fichiers du répertoire courant").
+  +  Si vous voulez indexer **un fichier/dossier spécifique**, utilisez `git add <nom_du_fichier>`.
+  +  Si vous voulez indexer **plusieurs fichiers/dossiers**, utilisez `git add <nom_du_fichier_1> <nom_du_fichier_2> ...`.
+
+Nous verrons plus tard comment desindexer un fichier (c'est à dire le retirer de l'index git) et/ou annuler les modifications apportées à un fichier.
+
+
+* **Valider les fichiers : commit**
+`git commit -m "<message_de_commit>"`
+
+Cette commande va permettre de valider les fichiers indexés dans le dépôt git. Le message de commit doit être explicite et décrire les modifications apportées aux fichiers. Il est important de bien rédiger le message de commit pour faciliter la compréhension des modifications apportées au projet, mais nous reviendrons sur ce point plus tard, dans la section "Bonnes pratiques". 
+
+* **Afficher l'état du dépôt** `git status`  
+
+Cette commande va permettre d'afficher l'état du dépôt git. Elle va indiquer les fichiers modifiés, les fichiers indexés et les fichiers non suivis. C'est une commande très utile pour savoir où en est le dépôt git.
+
+* **Afficher l'historique des commits** `git log`
+Cette commande va permettre d'afficher l'historique des commits du dépôt git. Elle va afficher la liste des commits, avec le hash du commit, l'auteur, la date et le message de commit. C'est une commande très utile pour suivre l'évolution du projet et comprendre les modifications apportées au fil du temps. Pour la rendre plus lisible, il est possible d'ajouter des options :
+```bash
+    git log --oneline
+    git log --graph
+    git log --oneline --graph --decorate
+```
+
+Parfait, on a maintenant les commandes de bases pour utiliser git LOCALEMENT. Maintenant, on va voir comment interagir avec un dépôt distant (remote). Il faut savoir que git est un outil de gestion de version distribué. Cela signifie que chaque utilisateur a une copie complète du dépôt sur sa machine. Il est donc possible de travailler hors ligne et de synchroniser les modifications avec le dépôt distant plus tard.
+
+* **Ajouter un dépôt distant** `git remote add origin <url_du_remote>`
+
+Vous aurez besoin de cette commande si vous avez créé un répo local et que vous souhaitez le publier sur github. Avant de faire cette commande il faut donc créer le répo sur github.  
+"origin est me nom par défaut du remote. Vous pouvez le changer si vous le souhaitez, mais c'est une bonne pratique de garder ce nom par défaut.
+
+Pour s'assurer que le remote a bien été ajouté, vous pouvez utiliser la commande suivante : `git remote -v`. 
+
+* **Pousser les modifications vers le dépôt distant** `git push [origin] [<nom_de_la_branche>]`
+
+Cette commande va permettre de pousser les modifications **Locales** vers le répo **distant**. Mais regardons la commande dans le détail :
+* `git push` : Pousse les modifications vers le remote par défaut (origin)
+* Ajouter `origin` : Pousse les modifications vers le remote "origin" (si vous avez plusieurs remotes) (ce qui est rare et pas notre cas ici)
+* Ajouter `<nom_de_la_branche>` : Pousse les modifications vers la branche spécifiée. Si vous ne spécifiez pas, elle poussera vers la branche en cours. Cependant, il est préférable de toujours se mettre dans la branche sur laquelle vous voulez pousser les modifications avant de faire un `git push` et vous n'utiliserez JAMAIS la commande `git push` pour push une autre branche. (cf bonnes pratiques)
+* Lors du premier push, il faut ajouter l'option `-u` pour lier la branche locale à la branche distante. Cela permet de ne pas avoir à spécifier le nom de la branche à chaque fois. Par exemple : `git push -u origin <nom_de_la_branche>`. Il existe un second cas d'utilisation de l'option `-u` mais nous ne l'aborderons pas ici
+
+Je reviendrais sur le concept de branche plus tard, mais sachez que c'est un concept fondamental de git. Il est donc important de bien comprendre comment ça fonctionne et de savoir s'en servir. 
+
+Voyons maintenant comment se tenir à jour par rapport au dépôt distant.
+
+* **Update les informations du dépôt distant** `git fetch --all`
+
+Tout dabord, il faut savoir que git ne synchronise pas automatiquement les informations du dépôt distant et c'est le role de cette commande. Sans vous expliquer en détail pourquoi, sachez que vous n'utiliserez que `git fetch --all`. Elle permet de mettre à jour les infos du dépot distant pour TOUT : branche, commits, tags, etc. Maintenant que le répo est à jour, on va pouvoir récupérer les modifications du dépôt distant et les appliquer à notre répo local. 
+
+* **Récupérer les modifications du dépôt distant** `git pull`
+
+Cette commande va permettre de récupérer les modifications du dépôt distant et de les appliquer à votre répo local. Attention toutefois à plusieurs choses :
+* Il faut d'abord faire un `git fetch --all` pour mettre à jour les informations du dépôt distant. Si vous ne le faites pas, vous risquez de récupérer des modifications qui ne sont pas à jour, ou simplement de ne pas récupérer les dernières modifications.
+* Aucune modification non indexée ne doit être présente dans le répertoire de travail avant de faire un `git pull`. 
+* Si vous tentez un git pull sur une branche qui a des commits non poussés, vous serez confronté à des conflits et nous verrons plus tard comment les résoudre... Donc, le plus possible, évitez.
+
+Bien, vous avez maintenant les commandes de base necessaire pour utiliser git. C'est le stricte minimum pour pouvoir travailler sur le projet CoHoMa dans les secteur "non informatique". Avec ça, vous pourrez :
+
+* Continuer un projet déjà existant
+* Créer un nouveau projet
+* Ajouter des fichiers
+* Modifier des fichiers
+
+Cependant, il y a encore beaucoup de choses à voir sur git, à commencer par... Comment réparer ses erreurs ? (car vous en ferez forcément même si vous êtes très prudents (d'ailleurs, même moi j'en fais (souvent))). 
 
 **<u>III. Les commandes correctives</u>**
 
