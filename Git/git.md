@@ -215,9 +215,84 @@ Maintenant, vous savez comment corriger la majorité des erreurs que vous pourre
 
 Cependant, pour que nous puissions à plusieurs sur un projet, il faut savoir comment gérer les branches et les conflits. C'est un concept fondamental de git et très utile pour travailler en équipe. 
 
-
-
 **<u>IV. Les commandes de gestion de branches et des conflits</u>**
+
+Commençons par un peu de théorie. C'est quoi une branche ? 
+
+On va faire un schema pour expliquer ça. Prenons un projet avec une seule branche (la branche principale : main) et une suite de commit A -> B -> C -> D. ton repo ressemble à ça :
+
+```
+    A -- B -- C -- D (main)
+                   ^
+                   |
+                  HEAD
+```
+
+Maintenant, disons que le projet fonctionne très bien tel quel et que vous vouliez ajouter une nouvelle fonctionnalité. Pour ce faire, vous allez créer une nouvelle branche (feature) à partir de la branche principale (main) en partant du dernier commit (D). Votre repo ressemble alors à ça :
+
+```
+    A -- B -- C -- D (main, feature)
+                   ^
+                   |
+                  HEAD
+```
+
+vous voyez pas la différence ? C'est normal, il n'y en a pas. Les branche par d'un commit parent. Si on ajoute aucun commmit sur cette nouvelle branche, la branche feature sera identique à la branche main.
+Du coup à quoi ça sert ? Ca permet de développer une nouvelle fonctionnalité sans impacter le projet principal. Ajoutons le commit E sur la branche feature :
+
+```
+                (main)
+    A -- B -- C -- D -- E (feature) 
+                        ^
+                        |
+                       HEAD
+```
+
+Ha ? La branche feature a un commit en plus que la branche main... Mais la "prolonge" ? Ca parait bizarre, mais en réalité, c'est tout à fait normal : la branche feature est une copie de la branche main au moment de sa création. Donc, si vous ajoutez un commit sur la branche feature, c'est comme si vous prolongiez la branche main d'un commit. 
+
+Pour le moment, aucune utilité à priori, j'aurais pu le faire sur la branche main... Sauf que, maintenant, un de mes collègue ajoute quelque chose sur la branche main (le commit F)... Que va-t-il se passer ? 
+
+```
+    A -- B -- C -- D -- F (main)  
+                    \    
+                     \  
+                      E (feature)
+``` 
+
+La branche feature est toujours là, mais elle n'est plus à jour par rapport à la branche main et possède un autre commit ! Ca signifie que le développement de la fonctionnalité sur la branche feature est indépendant du développement de la branche main et ça ne pose pas de problème et c'est ça la force des branches.
+
+Maintenant que vous avez compris le principe des branches, on va voir comment les utiliser.
+
+* **Créer une branche sur le repo distant** 
+
+Pour ce faire, il faut aller sur github pour créer une nouvelle branche. **INSERER ICI DES IMAGES**
+
+* **Créer une branche sur le repo local** `git branch <nom_de_la_branche>` ou `git checkout -b <nom_de_la_branche>` ou `git switch -c <nom_de_la_branche>`
+
+La première va permettre de créer une nouvelle branche à partir de la branche et le commit courant mais ne nous déplace pas dans cette dernière, contrairement aux 2 autres !
+
+* **Envoyer une branche sur le repo distant** `git push -u origin <nom_de_la_branche>`
+Cette commande va permettre de pousser la branche sur le dépôt distant. Il faut ajouter l'option `-u` pour lier la branche locale à la branche distante. Cela permet de ne pas avoir à spécifier le nom de la branche à chaque fois. Une fois fait, pour les commits suivants,
+
+* **Changer de branche** `git checkout <nom_de_la_branche>` ou `git switch <nom_de_la_branche>`
+
+Ces deux commandes vont permettre de changer de branche. La première est l'ancienne commande et la seconde est la nouvelle commande. Il est donc préférable d'utiliser la seconde, mais les deux fonctionnent. 
+Vous ne pouvez pas changer de branche si vous avez des modifications non indexées dans le répertoire de travail. Il faut donc soit les indexer, soit les annuler avant de changer de branche.
+
+* **Supprimer une branche localement** `git branch -d <nom_de_la_branche>`
+
+Cette commande va supprimer la branche LOCALEMENT. La branche sera toujours présente sur le dépôt distant. Il est donc possible de la récupérer plus tard si besoin.
+
+* **Supprimer une branche sur le dépôt distant** `git push origin --delete <nom_de_la_branche>`
+
+Cette commande va supprimer la branche sur le dépôt distant. Il est donc impossible de la récupérer plus tard. Mais si vous ne la supprimez pas localement, elle sera toujours présente sur votre machine. Si vous souhaitez la reouvrir sur le répo distant, il faudra la push à nouveau comme une nouvelle branche.
+
+BIEN ! Vous savez faire les manipulations de base sur les branches. Cependant, l'utilisation de branches (et le travail en équipe de façon générale) induit souvent des conflits et nous allons vois comment les résoudres.
+
+<!-- * **Résoudre un conflit** 
+
+Un conflit se produit lorsque deux personnes modifient le même fichier en même temps et que les modifications ne peuvent pas être fusionnées automatiquement. Dans ce cas, git va marquer le fichier comme étant en conflit et il faudra le résoudre manuellement. Ca peut avoir lieu lors d'une pull, d'un merge ou d'un rebase. -->
+
 
 **<u>V. Les commandes de fusion</u>**
 
